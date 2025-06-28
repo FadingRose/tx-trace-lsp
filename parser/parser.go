@@ -2,12 +2,12 @@ package parser
 
 import (
 	"context"
-	tree_sitter_tx "fadingrose/tx-trace-lsp/bindings/go"
+	"fmt"
 
+	sitter_tx "github.com/fadingrose/tree-sitter-tx/bindings/go"
 	sitter "github.com/smacker/go-tree-sitter"
 )
 
-// Parser 封装了我们的 Tree-sitter 解析器
 type Parser struct {
 	*sitter.Parser
 }
@@ -15,14 +15,25 @@ type Parser struct {
 func NewParser() *Parser {
 	p := sitter.NewParser()
 
-	language := sitter.NewLanguage(tree_sitter_tx.Language())
+	p.SetLanguage(sitter.NewLanguage(sitter_tx.Language()))
 
-	p.SetLanguage(language)
+	_, err := p.ParseCtx(context.Background(), nil, []byte{})
+	if err != nil {
+		panic(fmt.Sprintf("error initializing parser: %v", err))
+	}
 
 	return &Parser{p}
 }
 
+func (p *Parser) MustParse(content []byte) *sitter.Tree {
+	tree, err := p.ParseCtx(context.Background(), nil, content)
+	if err != nil {
+		panic(err)
+	}
+	return tree
+}
+
 func (p *Parser) Parse(content []byte) *sitter.Tree {
-	tree, _ := p.Parser.ParseCtx(context.Background(), nil, content)
+	tree, _ := p.ParseCtx(context.Background(), nil, content)
 	return tree
 }

@@ -82,7 +82,6 @@ func CalculateFoldingRanges(rootNode *sitter.Node, code []byte) []protocol.Foldi
 
 // getIndentLevel 是一个辅助函数，用于计算行的缩进级别
 // 这里的实现很简单，直接计算前缀字符串的长度。
-// 您可以根据需要实现更复杂的逻辑。
 func getIndentLevel(prefixNode *sitter.Node, code []byte) int {
 	if prefixNode == nil {
 		return 0

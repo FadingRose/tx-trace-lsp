@@ -26,28 +26,28 @@ func (r byRange) Less(i, j int) bool {
 }
 
 func TestCalculateFoldingRanges(t *testing.T) {
-	// 1. 设置 Parser
-	// 注意: 这一步的成功依赖于 Cgo 和您的项目配置
 	p := parser.NewParser()
 	if p == nil {
 		t.Fatal("Failed to create parser instance")
 	}
 
-	// 2. 读取测试文件
 	testFilePath := filepath.Join("testdata", "sample.tx")
 	content, err := os.ReadFile(testFilePath)
 	if err != nil {
 		t.Fatalf("Failed to read test file %s: %v", testFilePath, err)
 	}
 
-	// 3. 调用 Parser 解析得到语法树
-	tree := p.Parse(content)
+	tree := p.MustParse(content)
+	if tree == nil {
+		t.Fatal("Failed to parse the test file")
+	}
 
-	// 4. 调用我们待测试的 Analyzer
+	if tree.RootNode() == nil {
+		t.Fatal("Parsed tree has no root node")
+	}
+
 	actualRanges := CalculateFoldingRanges(tree.RootNode(), content)
 
-	// 5. 定义期望的结果
-	// 根据 testdata/sample.tx 的内容：
 	// - call C: start 2, end 3
 	// - call B: start 1, end 4
 	// - call D: start 5, end 6
